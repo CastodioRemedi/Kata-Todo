@@ -12,12 +12,13 @@ export default class App extends Component {
     currentFilter: 'all',
   };
 
-  createTaskConfig(label) {
+  createTaskConfig(label, min, sec) {
     return {
       label,
       done: false,
       display: true,
       id: this.currentId++,
+      time: Number(min) * 60 + Number(sec),
     };
   }
 
@@ -42,10 +43,10 @@ export default class App extends Component {
     });
   };
 
-  createTask = (label) => {
+  createTask = (label, m, s) => {
     this.setState(({ todoData }) => {
       return {
-        todoData: [this.createTaskConfig(label), ...todoData],
+        todoData: [this.createTaskConfig(label, m, s), ...todoData],
       };
     });
   };

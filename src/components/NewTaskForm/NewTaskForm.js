@@ -12,20 +12,34 @@ export default class NewTaskForm extends Component {
 
   state = {
     taskLabel: '',
+    min: '',
+    sec: '',
   };
 
-  inputHandler = (e) => {
+  LabelInputHandler = (e) => {
     this.setState({
       taskLabel: e.target.value,
     });
   };
 
-  keyPressHandler = (e) => {
-    if (e.key === 'Enter') {
-      if (this.state.taskLabel && this.state.taskLabel.trim().length !== 0) {
-        this.props.createTask(this.state.taskLabel);
-        this.setState({ taskLabel: '' });
-      }
+  MinInputHandler = (e) => {
+    this.setState({
+      min: e.target.value.replace(/\D/g, ''),
+    });
+  };
+
+  SecInputHandler = (e) => {
+    this.setState({
+      sec: e.target.value.replace(/\D/g, ''),
+    });
+  };
+
+  formSubmitHandler = (e) => {
+    e.preventDefault();
+    const { taskLabel: t, min: m, sec: s } = this.state;
+    if (t.trim().length !== 0 && m.trim().length !== 0 && s.trim().length !== 0) {
+      this.props.createTask(t, m, s);
+      this.setState({ taskLabel: '', min: '', sec: '' });
     }
   };
 
@@ -33,14 +47,27 @@ export default class NewTaskForm extends Component {
     return (
       <header className="header">
         <h1>todos</h1>
-        <input
-          className="new-todo"
-          placeholder="What needs to be done?"
-          autoFocus
-          value={this.state.taskLabel}
-          onChange={this.inputHandler}
-          onKeyDown={this.keyPressHandler}
-        />
+        <form className="new-todo-form" onSubmit={this.formSubmitHandler}>
+          <input
+            className="new-todo"
+            placeholder="What needs to be done?"
+            value={this.state.taskLabel}
+            onChange={this.LabelInputHandler}
+          />
+          <input
+            className="new-todo-form__timer"
+            placeholder="Min"
+            value={this.state.min}
+            onChange={this.MinInputHandler}
+          />
+          <input
+            className="new-todo-form__timer"
+            placeholder="Sec"
+            value={this.state.sec}
+            onChange={this.SecInputHandler}
+          />
+          <input type="submit" autoFocus="autofocus" style={{ display: 'none' }} />
+        </form>
       </header>
     );
   }

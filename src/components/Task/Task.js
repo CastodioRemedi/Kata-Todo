@@ -2,11 +2,15 @@ import { Component } from 'react';
 import propTypes from 'prop-types';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
+import TaskTimer from '../TaskTimer';
+
 export default class Task extends Component {
   static defaultProps = {
     label: undefined,
     done: false,
     created: new Date(),
+    time: null,
+    display: true,
     onChangeStatus: () => {},
     onDelete: () => {},
     onChangeLabel: () => {},
@@ -16,6 +20,8 @@ export default class Task extends Component {
     label: propTypes.string.isRequired,
     done: propTypes.bool,
     created: propTypes.instanceOf(Date),
+    time: propTypes.number,
+    display: propTypes.bool,
     onChangeStatus: propTypes.func,
     onDelete: propTypes.func,
     onChangeLabel: propTypes.func,
@@ -51,9 +57,10 @@ export default class Task extends Component {
 
   render() {
     const { edited, createdFormat, newLabel } = this.state;
-    const { done, label } = this.props;
+    const { done, label, time, display } = this.props;
 
     let classNames = '';
+    classNames += !display ? 'hidden' : '';
     classNames += done ? ' completed' : '';
     classNames += edited ? ' editing' : '';
 
@@ -62,8 +69,9 @@ export default class Task extends Component {
         <div className="view">
           <input className="toggle" type="checkbox" onClick={this.props.onChangeStatus} checked={done} readOnly />
           <label>
-            <span className="description">{label}</span>
-            <span className="created">{`created ${createdFormat} ago`}</span>
+            <span className="title">{label}</span>
+            <TaskTimer seconds={time} />
+            <span className="description">{`created ${createdFormat} ago`}</span>
           </label>
           <button className="icon icon-edit" onClick={this.enableEdit}></button>
           <button className="icon icon-destroy" onClick={this.props.onDelete}></button>

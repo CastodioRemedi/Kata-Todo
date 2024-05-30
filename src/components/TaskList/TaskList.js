@@ -4,13 +4,15 @@ import Task from '../Task';
 
 const TaskList = ({ todos, onDelete, onChangeStatus, onChangeLabel }) => {
   const items = todos.map((item) => {
-    const { id, label, done, display } = item;
-    if (!display) return null;
+    const { id, label, done, display, time } = item;
+
     return (
       <Task
         label={label}
         key={id}
         done={done}
+        time={time}
+        display={display}
         onDelete={() => onDelete(id)}
         onChangeStatus={() => onChangeStatus(id)}
         onChangeLabel={(label) => onChangeLabel(id, label)}
@@ -35,6 +37,7 @@ TaskList.propTypes = {
       done: propTypes.bool,
       display: propTypes.bool,
       id: propTypes.any,
+      time: propTypes.number,
     })
   ),
   onDelete: propTypes.func,
