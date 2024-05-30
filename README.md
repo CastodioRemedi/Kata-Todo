@@ -1,1 +1,1 @@
-## Опубликованно по ссылке : [kata-react-todo.dev.kastodio.ru](https://kata-react-todo-k3yi8s3sb-kastodio.vercel.app/)
+## Опубликованно по ссылке : [kata-react-todo.dev.kastodio.ru](https://kata-react-todo-hooks.vercel.app/)

@@ -1,83 +1,79 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import propTypes from 'prop-types';
 import formatDistanceToNow from 'date-fns/formatDistanceToNow';
 
-export default class Task extends Component {
-  static defaultProps = {
-    label: undefined,
-    done: false,
-    created: new Date(),
-    onChangeStatus: () => {},
-    onDelete: () => {},
-    onChangeLabel: () => {},
-  };
+import TaskTimer from '../TaskTimer';
 
-  static propTypes = {
-    label: propTypes.string.isRequired,
-    done: propTypes.bool,
-    created: propTypes.instanceOf(Date),
-    onChangeStatus: propTypes.func,
-    onDelete: propTypes.func,
-    onChangeLabel: propTypes.func,
-  };
+const Task = ({ label, done, created, time, display, onChangeStatus, onDelete, onChangeLabel }) => {
+  const [edited, changeEdited] = useState(false);
+  const [createdFormat, setCreatedFormat] = useState(formatDistanceToNow(created, { includeSeconds: true }));
+  const [newLabel, setNewLabel] = useState(label);
 
-  state = {
-    edited: false,
-    createdFormat: formatDistanceToNow(this.props.created, { includeSeconds: true }),
-    newLabel: this.props.label,
-  };
+  useEffect(() => {
+    let timer = setInterval(() => setCreatedFormat(formatDistanceToNow(created, { includeSeconds: true })), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
-  componentDidMount() {
-    this.timerID = setInterval(
-      () => this.setState({ createdFormat: formatDistanceToNow(this.props.created, { includeSeconds: true }) }),
-      1000
-    );
-  }
-
-  componentWillUnmount() {
-    clearInterval(this.timerID);
-  }
-
-  changeLabel = (e) => {
+  const changeLabel = (e) => {
     if (e.key === 'Enter') {
-      this.props.onChangeLabel(e.target.value);
-      this.setState({ edited: false });
+      onChangeLabel(e.target.value);
+      changeEdited(false);
     }
   };
 
-  enableEdit = () => {
-    this.setState({ edited: true });
+  const enableEdit = () => {
+    changeEdited(true);
   };
 
-  render() {
-    const { edited, createdFormat, newLabel } = this.state;
-    const { done, label } = this.props;
+  let classNames = '';
+  classNames += !display ? 'hidden' : '';
+  classNames += done ? ' completed' : '';
+  classNames += edited ? ' editing' : '';
 
-    let classNames = '';
-    classNames += done ? ' completed' : '';
-    classNames += edited ? ' editing' : '';
+  return (
+    <li className={classNames}>
+      <div className="view">
+        <input className="toggle" type="checkbox" onClick={onChangeStatus} checked={done} readOnly />
+        <label>
+          <span className="title">{label}</span>
+          <TaskTimer seconds={time} />
+          <span className="description">{`created ${createdFormat} ago`}</span>
+        </label>
+        <button className="icon icon-edit" onClick={enableEdit}></button>
+        <button className="icon icon-destroy" onClick={onDelete}></button>
+      </div>
+      <input
+        type="text"
+        className="edit"
+        value={newLabel}
+        onInput={(e) => {
+          setNewLabel(e.target.value);
+        }}
+        onKeyDown={changeLabel}
+      ></input>
+    </li>
+  );
+};
 
-    return (
-      <li className={classNames}>
-        <div className="view">
-          <input className="toggle" type="checkbox" onClick={this.props.onChangeStatus} checked={done} readOnly />
-          <label>
-            <span className="description">{label}</span>
-            <span className="created">{`created ${createdFormat} ago`}</span>
-          </label>
-          <button className="icon icon-edit" onClick={this.enableEdit}></button>
-          <button className="icon icon-destroy" onClick={this.props.onDelete}></button>
-        </div>
-        <input
-          type="text"
-          className="edit"
-          value={newLabel}
-          onInput={(e) => {
-            this.setState({ newLabel: e.target.value });
-          }}
-          onKeyDown={this.changeLabel}
-        ></input>
-      </li>
-    );
-  }
-}
+Task.defaultProps = {
+  label: undefined,
+  done: false,
+  created: new Date(),
+  time: null,
+  display: true,
+  onChangeStatus: () => {},
+  onDelete: () => {},
+  onChangeLabel: () => {},
+};
+Task.propTypes = {
+  label: propTypes.string.isRequired,
+  done: propTypes.bool,
+  created: propTypes.instanceOf(Date),
+  time: propTypes.number,
+  display: propTypes.bool,
+  onChangeStatus: propTypes.func,
+  onDelete: propTypes.func,
+  onChangeLabel: propTypes.func,
+};
+
+export default Task;

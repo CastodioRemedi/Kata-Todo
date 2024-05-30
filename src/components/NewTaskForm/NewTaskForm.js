@@ -1,47 +1,57 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import propTypes from 'prop-types';
 
-export default class NewTaskForm extends Component {
-  static defaultProps = {
-    createTask: () => {},
+const NewTaskForm = ({ createTask }) => {
+  const [taskLabel, setTaskLabel] = useState('');
+  const [min, setMin] = useState('');
+  const [sec, setSec] = useState('');
+
+  const LabelInputHandler = (e) => {
+    setTaskLabel(e.target.value);
   };
 
-  static propTypes = {
-    createTask: propTypes.func,
+  const MinInputHandler = (e) => {
+    setMin(e.target.value.replace(/\D/g, ''));
   };
 
-  state = {
-    taskLabel: '',
+  const SecInputHandler = (e) => {
+    setSec(e.target.value.replace(/\D/g, ''));
   };
 
-  inputHandler = (e) => {
-    this.setState({
-      taskLabel: e.target.value,
-    });
-  };
+  const formSubmitHandler = (e) => {
+    e.preventDefault();
 
-  keyPressHandler = (e) => {
-    if (e.key === 'Enter') {
-      if (this.state.taskLabel && this.state.taskLabel.trim().length !== 0) {
-        this.props.createTask(this.state.taskLabel);
-        this.setState({ taskLabel: '' });
-      }
+    if (taskLabel.trim().length !== 0 && min.trim().length !== 0 && sec.trim().length !== 0) {
+      createTask(taskLabel, min, sec);
+      setTaskLabel('');
+      setMin('');
+      setSec('');
     }
   };
 
-  render() {
-    return (
-      <header className="header">
-        <h1>todos</h1>
+  return (
+    <header className="header">
+      <h1>todos</h1>
+      <form className="new-todo-form" onSubmit={formSubmitHandler}>
         <input
           className="new-todo"
           placeholder="What needs to be done?"
-          autoFocus
-          value={this.state.taskLabel}
-          onChange={this.inputHandler}
-          onKeyDown={this.keyPressHandler}
+          value={taskLabel}
+          onChange={LabelInputHandler}
         />
-      </header>
-    );
-  }
-}
+        <input className="new-todo-form__timer" placeholder="Min" value={min} onChange={MinInputHandler} />
+        <input className="new-todo-form__timer" placeholder="Sec" value={sec} onChange={SecInputHandler} />
+        <input type="submit" autoFocus="autofocus" style={{ display: 'none' }} />
+      </form>
+    </header>
+  );
+};
+
+NewTaskForm.defaultProps = {
+  createTask: () => {},
+};
+NewTaskForm.propTypes = {
+  createTask: propTypes.func,
+};
+
+export default NewTaskForm;
