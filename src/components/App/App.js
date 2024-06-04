@@ -8,14 +8,12 @@ const App = () => {
   const [todoData, setTodos] = useState([]);
   const [currentFilter, setFilter] = useState('all');
 
-  let currentId = 0;
-
   const createTaskConfig = (label, min, sec) => {
     return {
       label,
       done: false,
       display: true,
-      id: currentId++,
+      id: Date.now() + Math.random(), // Комбинация времени и случайного числа
       time: Number(min) * 60 + Number(sec),
     };
   };

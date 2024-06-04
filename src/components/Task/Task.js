@@ -10,9 +10,12 @@ const Task = ({ label, done, created, time, display, onChangeStatus, onDelete, o
   const [newLabel, setNewLabel] = useState(label);
 
   useEffect(() => {
-    let timer = setInterval(() => setCreatedFormat(formatDistanceToNow(created, { includeSeconds: true })), 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    const timer = setInterval(() => {
+      setCreatedFormat(formatDistanceToNow(created, { includeSeconds: true }));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [created]);
 
   const changeLabel = (e) => {
     if (e.key === 'Enter') {
@@ -26,14 +29,14 @@ const Task = ({ label, done, created, time, display, onChangeStatus, onDelete, o
   };
 
   let classNames = '';
-  classNames += !display ? 'hidden' : '';
+  classNames += !display ? ' hidden' : '';
   classNames += done ? ' completed' : '';
   classNames += edited ? ' editing' : '';
 
   return (
     <li className={classNames}>
       <div className="view">
-        <input className="toggle" type="checkbox" onClick={onChangeStatus} checked={done} readOnly />
+        <input className="toggle" type="checkbox" onChange={onChangeStatus} checked={done} />
         <label>
           <span className="title">{label}</span>
           <TaskTimer seconds={time} />
@@ -46,11 +49,10 @@ const Task = ({ label, done, created, time, display, onChangeStatus, onDelete, o
         type="text"
         className="edit"
         value={newLabel}
-        onInput={(e) => {
-          setNewLabel(e.target.value);
-        }}
+        onChange={(e) => setNewLabel(e.target.value)}
         onKeyDown={changeLabel}
-      ></input>
+        onBlur={() => changeEdited(false)}
+      />
     </li>
   );
 };
@@ -65,6 +67,7 @@ Task.defaultProps = {
   onDelete: () => {},
   onChangeLabel: () => {},
 };
+
 Task.propTypes = {
   label: propTypes.string.isRequired,
   done: propTypes.bool,

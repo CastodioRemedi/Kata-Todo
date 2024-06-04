@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import propTypes from 'prop-types';
 import { intervalToDuration } from 'date-fns';
 
 const TaskTimer = ({ seconds }) => {
   const [CS, setCS] = useState({ seconds: seconds, isMinus: false });
   const [isCounting, setIsCounting] = useState(false);
+  const intervalRef = useRef(null);
 
   const formatTimeTo2Sym = (t) => (String(t).length === 2 ? t : `0${t}`);
 
@@ -22,7 +23,7 @@ const TaskTimer = ({ seconds }) => {
     if (interval.years) dateString.push(`${interval.years} years`);
     if (interval.months) dateString.push(`${interval.months} months`);
     if (interval.days) dateString.push(`${interval.days} days`);
-    if (interval.hours) timerString.push(this.formatTimeTo2Sym(interval.hours));
+    if (interval.hours) timerString.push(formatTimeTo2Sym(interval.hours));
     timerString.push(formatTimeTo2Sym(interval.minutes));
     timerString.push(formatTimeTo2Sym(interval.seconds));
 
@@ -30,15 +31,13 @@ const TaskTimer = ({ seconds }) => {
     return res;
   };
 
-  let counter = undefined;
-
   const toggleCounting = () => {
     if (!isCounting) {
       setIsCounting(true);
-      counter = setInterval(() => {
+      intervalRef.current = setInterval(() => {
         setCS(({ seconds, isMinus }) => {
           let newSeconds;
-          let setMinus = false;
+          let setMinus = isMinus;
 
           if (seconds > 0 && !isMinus) {
             newSeconds = seconds - 1;
@@ -51,12 +50,14 @@ const TaskTimer = ({ seconds }) => {
         });
       }, 1000);
     } else {
-      clearInterval(counter);
+      clearInterval(intervalRef.current);
       setIsCounting(false);
     }
   };
 
-  useEffect(() => () => clearInterval(counter), []);
+  useEffect(() => {
+    return () => clearInterval(intervalRef.current);
+  }, []);
 
   let classNames = 'description';
   classNames += CS.isMinus ? ' alert' : '';
@@ -73,7 +74,7 @@ const TaskTimer = ({ seconds }) => {
 };
 
 TaskTimer.defaultProps = {
-  seconds: undefined,
+  seconds: 0,
 };
 
 TaskTimer.propTypes = {
